@@ -2,16 +2,16 @@
 - name: ssl | Installing Python Modules
   pip:
     name: "{{ item }}"
-    state: "present"
+    state: present
   become: true
   with_items:
-    - 'pyOpenSSL'
+    - pyOpenSSL
   when: haproxy_load_balancer_ssl['generate_keys']
 
 - name: ssl | Ensuring SSL Keys Folders Exist
   file:
     path: "{{ item|dirname }}"
-    state: "directory"
+    state: directory
   become: true
   with_items:
     - "{{ haproxy_load_balancer_ssl['private_key_file'] }}"
@@ -23,10 +23,10 @@
     force: "{{ haproxy_load_balancer_ssl['regenerate_keys'] }}"
     path: "{{ haproxy_load_balancer_ssl['private_key_file'] }}"
     size: "{{ haproxy_load_balancer_ssl['private_key_size'] }}"
-    state: "present"
+    state: present
     type: "{{ haproxy_load_balancer_ssl['private_key_type'] }}"
   become: true
-  register: "_haproxy_load_balancer_ssl_priv_key"
+  register: _haproxy_load_balancer_ssl_priv_key
   when: >
         haproxy_load_balancer_ssl['generate_keys'] and
         (not haproxy_load_balancer_ha or
@@ -41,7 +41,7 @@
     path: "{{ haproxy_load_balancer_ssl['csr_key_file'] }}"
     privatekey_path: "{{ haproxy_load_balancer_ssl['private_key_file'] }}"
   become: true
-  register: "_haproxy_load_balancer_ssl_csr"
+  register: _haproxy_load_balancer_ssl_csr
   when: >
         haproxy_load_balancer_ssl['generate_keys'] and
         (not haproxy_load_balancer_ha or
@@ -81,7 +81,7 @@
   slurp:
     src: "{{ haproxy_load_balancer_ssl['private_key_file'] }}"
   become: true
-  register: "_haproxy_load_balancer_ssl_priv_key_"
+  register: _haproxy_load_balancer_ssl_priv_key_
   when: >
         haproxy_load_balancer_ssl['generate_keys'] and
           ((haproxy_load_balancer_ha and
@@ -94,7 +94,7 @@
   slurp:
     src: "{{ haproxy_load_balancer_ssl['public_key_file'] }}"
   become: true
-  register: "_haproxy_load_balancer_ssl_pub_key_"
+  register: _haproxy_load_balancer_ssl_pub_key_
   when: >
         haproxy_load_balancer_ssl['generate_keys'] and
           ((haproxy_load_balancer_ha and
@@ -103,7 +103,7 @@
 
 - name: ssl | Creating Primary SSL Bundle
   template:
-    src: "bundle.j2"
+    src: bundle.j2
     dest: "{{ haproxy_load_balancer_ssl['bundled_cert'] }}"
   become: true
   when: >
@@ -116,7 +116,7 @@
 # that all load balancers are configured to use the same key for SSL.
 - name: ssl | Syncing Primary SSL Private Key
   template:
-    src: "key.j2"
+    src: key.j2
     dest: "{{ haproxy_load_balancer_ha_key_file_prefix }}-key.pem"
   become: true
   when: >
@@ -127,7 +127,7 @@
 # that all load balancers are configured to use the same key for SSL.
 - name: ssl | Syncing Primary SSL Public Key
   template:
-    src: "cert.j2"
+    src: cert.j2
     dest: "{{ haproxy_load_balancer_ha_key_file_prefix }}-cert.pem"
   become: true
   when: >
@@ -138,7 +138,7 @@
 # that all load balancers are configured to use the same SSL bundled keys.
 - name: ssl | Syncing Primary SSL Bundle
   template:
-    src: "bundle.j2"
+    src: bundle.j2
     dest: "{{ haproxy_load_balancer_ssl['bundled_cert'] }}"
   become: true
   when: >
